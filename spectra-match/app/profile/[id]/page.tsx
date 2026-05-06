@@ -1,4 +1,4 @@
-'use client'
+'use client' // Deployment Trigger: Vercel Fix 18:40
 
 import React, { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
