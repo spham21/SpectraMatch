@@ -1,0 +1,3 @@
+SpectraMatch Health Check: OK
+Root: spectra-match
+Deploy: 18:57
