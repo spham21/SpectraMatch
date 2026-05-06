@@ -290,12 +290,44 @@ h6 { font-size: var(--font-size-base); }
 .dimension-bar-fill--JP { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
 
 /* ── Likert Scale ───────────────────────────────────────────────────────── */
-/* Size-graded circles: index 1=smallest ... 7=largest, no visible numbers */
+.likert-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  width: 100%;
+  margin-top: var(--space-8);
+}
+
+.likert-label-container {
+  flex: 1;
+  max-width: 100px;
+}
+
+.likert-label {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  line-height: 1.4;
+  opacity: 0.7;
+}
+
+@media (min-width: 640px) {
+  .likert-label {
+    font-size: 10px;
+  }
+  .likert-label-container {
+    max-width: 120px;
+  }
+}
+
 .likert-row {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
+  gap: 8px;
+  flex-shrink: 0;
 }
 
 .likert-btn {

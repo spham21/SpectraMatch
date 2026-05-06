@@ -1,19 +1,21 @@
 'use client'
 
 import React from 'react'
+import Link from 'next/link'
 
 interface MatchCardProps {
+  userId: string
   displayName: string
   avatarUrl: string | null
   mbtiType: string | null
   compatibilityScore: number
 }
 
-export default function MatchCard({ displayName, avatarUrl, mbtiType, compatibilityScore }: MatchCardProps) {
+export default function MatchCard({ userId, displayName, avatarUrl, mbtiType, compatibilityScore }: MatchCardProps) {
   return (
-    <div className="card flex items-center gap-6 animate-fade-in">
+    <div className="card flex items-center gap-6 animate-fade-in group">
       <div className="relative shrink-0">
-        <div className="w-16 h-16 rounded-full bg-bg-elevated overflow-hidden border-2 border-border">
+        <div className="w-16 h-16 rounded-full bg-bg-elevated overflow-hidden border-2 border-border group-hover:border-primary-soft transition-colors">
           {avatarUrl ? (
             <img src={avatarUrl} alt={displayName} className="w-full h-full object-cover" />
           ) : (
@@ -35,9 +37,9 @@ export default function MatchCard({ displayName, avatarUrl, mbtiType, compatibil
         </div>
       </div>
 
-      <button className="btn btn-ghost py-2 px-4 text-sm hidden sm:flex">
+      <Link href={`/profile/${userId}`} className="btn btn-ghost py-2 px-4 text-sm hidden sm:flex hover:bg-primary/10 hover:text-primary-soft">
         View Profile
-      </button>
+      </Link>
     </div>
   )
 }

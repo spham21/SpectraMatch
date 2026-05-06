@@ -66,3 +66,8 @@ export type MbtiType = (typeof MBTI_TYPES)[number]
 
 /** Current personality profile schema version */
 export const SCHEMA_VERSION = 1
+
+/** Dating Questionnaire Options */
+export const GENDER_OPTIONS = ['Man', 'Woman', 'Non-binary', 'Genderfluid', 'Agender', 'Prefer not to say', 'Other']
+export const SEXUALITY_OPTIONS = ['Straight', 'Gay', 'Lesbian', 'Bisexual', 'Pansexual', 'Asexual', 'Queer', 'Prefer not to say', 'Other']
+export const LOOKING_FOR_OPTIONS = ['Long-term relationship', 'Something casual', 'Friendship', 'Not sure yet', 'Open to anything']

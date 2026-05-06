@@ -10,6 +10,7 @@ import ProgressBar from '@/components/personality/ProgressBar'
 import QuestionCard from '@/components/personality/QuestionCard'
 import ProcessingScreen from '@/components/personality/ProcessingScreen'
 import { normalizeDimension, deriveTypeFromScores } from '@/lib/scoring'
+import { createSupabaseBrowserClient } from '@/lib/supabase/client'
 
 type TestState = 'dating' | 'intro' | 'questions' | 'processing'
 
@@ -48,44 +49,69 @@ export default function TestPage() {
     }
   }
 
+  /** Ensures a profile exists for the user to avoid foreign key errors */
+  async function ensureProfile(supabase: any, userId: string) {
+    const { data } = await supabase.from('profiles').select('user_id').eq('user_id', userId).single()
+    if (!data) {
+      await supabase.from('profiles').upsert({ user_id: userId, display_name: 'Anonymous Beta User' })
+    }
+  }
+
+  /** Invokes the AI Edge Function to score the test and generate excerpts */
+  async function submitToAI(supabase: any, userId: string, finalAnswers: Record<string, number>) {
+    const formattedAnswers = Object.entries(finalAnswers).map(([id, score]) => ({
+      questionId: id,
+      score
+    }))
+
+    const { data, error } = await supabase.functions.invoke('submit-test', {
+      body: { answers: formattedAnswers, anonymousUserId: userId }
+    })
+
+    if (error) {
+      console.error('AI Function Error Object:', error)
+      const details = error.context ? await error.context.json().catch(() => ({ error: error.message })) : { error: error.message }
+      const finalMessage = details.error || details.message || error.message
+      throw new Error(`Edge Function Error: ${finalMessage}`)
+    }
+    return data
+  }
+
+  /** Fetches the generated profile and caches it locally */
+  async function finalizeResults(supabase: any, profileId: string) {
+    const { data: profile, error } = await supabase.from('personality_profiles').select('*').eq('id', profileId).single()
+    if (error) throw error
+
+    savePersonalityResults({
+      mbtiType: profile.mbti_type,
+      eiScore: profile.ei_score,
+      snScore: profile.sn_score,
+      tfScore: profile.tf_score,
+      jpScore: profile.jp_score,
+      personalityExcerpt: profile.personality_excerpt,
+      compatibilityExcerpt: profile.compatibility_excerpt,
+      compatibleTypes: ['ENFP', 'INFJ', 'INTJ'],
+      compatibilityRationale: 'Based on spectral resonance patterns.',
+      createdAt: profile.created_at
+    })
+  }
+
   const processResults = async (finalAnswers: Record<string, number>) => {
     setState('processing')
-    await trackTestSubmitted(getLocalUserId())
+    const userId = getLocalUserId()
+    const supabase = createSupabaseBrowserClient()
 
-    // For beta: Calculate scores locally since auth is removed
-    const byDimension: Record<string, number[]> = { EI: [], SN: [], TF: [], JP: [] }
-    questions.forEach(q => {
-      const dim = q.id.split('-')[0]
-      if (dim in byDimension) byDimension[dim].push(finalAnswers[q.id] || 4)
-    })
-
-    const scores = {
-      EI: normalizeDimension(byDimension.EI),
-      SN: normalizeDimension(byDimension.SN),
-      TF: normalizeDimension(byDimension.TF),
-      JP: normalizeDimension(byDimension.JP),
+    try {
+      await trackTestSubmitted(userId)
+      await ensureProfile(supabase, userId)
+      const { profileId } = await submitToAI(supabase, userId, finalAnswers)
+      await finalizeResults(supabase, profileId)
+      window.location.href = '/results'
+    } catch (err) {
+      console.error('Test Submission Error:', err)
+      alert('AI processing failed. Please try again or check your connection.')
+      setState('questions')
     }
-
-    const mbtiType = deriveTypeFromScores(scores)
-
-    // Simulate AI delay
-    await new Promise(r => setTimeout(r, 2000))
-
-    // Save to localStorage
-    savePersonalityResults({
-      mbtiType,
-      eiScore: scores.EI,
-      snScore: scores.SN,
-      tfScore: scores.TF,
-      jpScore: scores.JP,
-      personalityExcerpt: `As an ${mbtiType}, your spectral signature shows a unique alignment of energy. You approach the world with both curiosity and purpose.`,
-      compatibilityExcerpt: `In relationships, you seek a connection that resonates with your core values and intellectual depth.`,
-      compatibleTypes: ['ENFP', 'INFJ', 'INTJ'], // Mock for now
-      compatibilityRationale: 'These types often share complementary spectral energies that lead to deep understanding.',
-      createdAt: new Date().toISOString()
-    })
-
-    window.location.href = '/results'
   }
 
   return (

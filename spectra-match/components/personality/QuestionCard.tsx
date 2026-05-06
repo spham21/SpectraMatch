@@ -14,41 +14,44 @@ const LIKERT_SCORES = [1, 2, 3, 4, 5, 6, 7] as const
 
 export default function QuestionCard({ question, value, onAnswer }: QuestionCardProps) {
   return (
-    <div className="card max-w-2xl mx-auto animate-slide-in">
-      <h3 className="text-center mb-12 min-h-[5rem] flex items-center justify-center px-6 leading-snug">
+    <div className="card animate-slide-in" style={{ maxWidth: '640px', margin: '0 auto' }}>
+      <h3 className="text-center mb-12" style={{ minHeight: '5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 1.5rem', lineHeight: '1.4' }}>
         {question.text}
       </h3>
 
-      <div className="flex flex-col gap-10">
-        <div className="flex flex-col gap-4">
-          <div className="flex items-center justify-center gap-4 sm:gap-6">
-            <span className="text-[10px] font-bold text-accent uppercase tracking-widest text-center w-16 sm:w-20 leading-tight">
-              Strongly Disagree
-            </span>
-
-            <div className="likert-row flex-1 px-2">
-              {LIKERT_SCORES.map((score) => (
-                <button
-                  key={score}
-                  data-size={score}
-                  onClick={() => onAnswer(score)}
-                  className={`likert-btn ${value === score ? 'likert-btn--selected' : ''}`}
-                  aria-label={`Score ${score} of 7`}
-                  title={score === 4 ? "Neutral" : `${score} of 7`}
-                />
-              ))}
-            </div>
-
-            <span className="text-[10px] font-bold text-success uppercase tracking-widest text-center w-16 sm:w-20 leading-tight">
-              Strongly Agree
-            </span>
-          </div>
+      <div className="likert-container">
+        {/* Strongly Disagree - Left */}
+        <div className="likert-label-container" style={{ textAlign: 'right' }}>
+          <span className="likert-label" style={{ color: 'var(--color-accent)' }}>
+            Strongly Disagree
+          </span>
         </div>
 
-        <p className="text-center text-text-muted text-xs italic opacity-70">
-          Tip: Be as honest as possible for the most accurate spectral signature.
-        </p>
+        {/* Circles in the middle */}
+        <div className="likert-row">
+          {LIKERT_SCORES.map((score) => (
+            <button
+              key={score}
+              data-size={score}
+              onClick={() => onAnswer(score)}
+              className={`likert-btn ${value === score ? 'likert-btn--selected' : ''}`}
+              aria-label={`Score ${score} of 7`}
+              title={score === 4 ? "Neutral" : `${score} of 7`}
+            />
+          ))}
+        </div>
+
+        {/* Strongly Agree - Right */}
+        <div className="likert-label-container" style={{ textAlign: 'left' }}>
+          <span className="likert-label" style={{ color: 'var(--color-success)' }}>
+            Strongly Agree
+          </span>
+        </div>
       </div>
+
+      <p className="text-center mt-12" style={{ color: 'var(--color-text-muted)', fontSize: '0.75rem', fontStyle: 'italic', opacity: 0.7 }}>
+        Tip: Be as honest as possible for the most accurate spectral signature.
+      </p>
     </div>
   )
 }

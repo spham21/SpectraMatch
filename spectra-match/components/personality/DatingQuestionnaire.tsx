@@ -1,16 +1,13 @@
 'use client'
 
 import React, { useState } from 'react'
-import { saveDatingProfile, type DatingProfile } from '@/lib/localUser'
+import { saveDatingProfile, type DatingProfile, getLocalUserId } from '@/lib/localUser'
+import { createSupabaseBrowserClient } from '@/lib/supabase/client'
+import { GENDER_OPTIONS, SEXUALITY_OPTIONS, LOOKING_FOR_OPTIONS } from '@/lib/constants'
 
 interface DatingQuestionnaireProps {
-  /** Called when the form is successfully submitted */
   onComplete: () => void
 }
-
-const GENDER_OPTIONS = ['Man', 'Woman', 'Non-binary', 'Genderfluid', 'Agender', 'Prefer not to say', 'Other']
-const SEXUALITY_OPTIONS = ['Straight', 'Gay', 'Lesbian', 'Bisexual', 'Pansexual', 'Asexual', 'Queer', 'Prefer not to say', 'Other']
-const LOOKING_FOR_OPTIONS = ['Long-term relationship', 'Something casual', 'Friendship', 'Not sure yet', 'Open to anything']
 
 /** Select field option list */
 function SelectField({
@@ -74,11 +71,37 @@ export default function DatingQuestionnaire({ onComplete }: DatingQuestionnaireP
     return Object.keys(next).length === 0
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!validate()) return
-    saveDatingProfile({ ...form, completedAt: new Date().toISOString() })
-    onComplete()
+    
+    const datingData = { ...form, completedAt: new Date().toISOString() }
+    saveDatingProfile(datingData)
+
+    try {
+      const supabase = createSupabaseBrowserClient()
+      const userId = getLocalUserId()
+
+      // Upsert the profile into Supabase so it exists for the test submission
+      const { error } = await supabase
+        .from('profiles')
+        .upsert({
+          user_id: userId,
+          display_name: form.name,
+          age: Number(form.age),
+          gender: form.gender,
+          sexuality: form.sexuality,
+          looking_for: form.lookingFor,
+          bio: form.bio
+        }, { onConflict: 'user_id' })
+
+      if (error) throw error
+      onComplete()
+    } catch (err) {
+      console.error('Error saving profile to Supabase:', err)
+      // We still call onComplete even if Supabase fails, but the AI won't work perfectly
+      onComplete()
+    }
   }
 
   return (

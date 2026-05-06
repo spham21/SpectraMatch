@@ -6,6 +6,8 @@ import {
   MAX_NORMALIZED,
   TYPE_THRESHOLD,
   INTENSITY_BANDS,
+  DIMENSIONS,
+  DIMENSION_POLES,
   type Dimension,
   type IntensityBand,
   type MbtiType,
@@ -102,12 +104,5 @@ export function scoreIntensity(score: number): IntensityBand {
  * @param score - Normalized score (0–100)
  * @returns Human-readable pole label (e.g. "Introvert" or "Extrovert")
  */
-export function getDimensionPoleLabel(dimension: Dimension, score: number): string {
-  const poles: Record<Dimension, { low: string; high: string }> = {
-    EI: { low: 'Introvert', high: 'Extrovert' },
-    SN: { low: 'Sensing', high: 'Intuitive' },
-    TF: { low: 'Thinking', high: 'Feeling' },
-    JP: { low: 'Judging', high: 'Perceiving' },
-  }
-  return score >= TYPE_THRESHOLD ? poles[dimension].high : poles[dimension].low
+  return score >= TYPE_THRESHOLD ? DIMENSION_POLES[dimension].high : DIMENSION_POLES[dimension].low
 }
