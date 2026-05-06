@@ -53,7 +53,7 @@ export default function TestPage() {
   async function ensureProfile(supabase: any, userId: string) {
     const { data } = await supabase.from('profiles').select('user_id').eq('user_id', userId).single()
     if (!data) {
-      await supabase.from('profiles').upsert({ user_id: userId, display_name: 'Anonymous Beta User' })
+      await (supabase.from('profiles').upsert({ user_id: userId, display_name: 'Anonymous Beta User' } as any) as any)
     }
   }
 

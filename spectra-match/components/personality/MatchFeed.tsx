@@ -52,7 +52,7 @@ export default function MatchFeed() {
           return
         }
 
-        const filtered = data
+        const filtered = (data as any[])
           .filter(u => isMatchCompatible(datingProfile, u.gender || '', u.sexuality || ''))
           .map(u => {
             const personality = Array.isArray(u.personality_profiles) 

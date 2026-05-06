@@ -83,7 +83,7 @@ export default function DatingQuestionnaire({ onComplete }: DatingQuestionnaireP
       const userId = getLocalUserId()
 
       // Upsert the profile into Supabase so it exists for the test submission
-      const { error } = await supabase
+      const { error } = await (supabase
         .from('profiles')
         .upsert({
           user_id: userId,
@@ -93,7 +93,7 @@ export default function DatingQuestionnaire({ onComplete }: DatingQuestionnaireP
           sexuality: form.sexuality,
           looking_for: form.lookingFor,
           bio: form.bio
-        }, { onConflict: 'user_id' })
+        } as any, { onConflict: 'user_id' }) as any)
 
       if (error) throw error
       onComplete()

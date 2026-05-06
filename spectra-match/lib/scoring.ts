@@ -104,5 +104,6 @@ export function scoreIntensity(score: number): IntensityBand {
  * @param score - Normalized score (0–100)
  * @returns Human-readable pole label (e.g. "Introvert" or "Extrovert")
  */
+export function getPoleLabel(dimension: Dimension, score: number): string {
   return score >= TYPE_THRESHOLD ? DIMENSION_POLES[dimension].high : DIMENSION_POLES[dimension].low
 }

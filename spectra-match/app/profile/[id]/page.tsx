@@ -15,11 +15,15 @@ export default function PublicProfilePage() {
 
   useEffect(() => {
     const fetchProfile = async () => {
+      // Ensure id is a string to satisfy Supabase/TypeScript
+      const userId = Array.isArray(id) ? id[0] : id
+      if (!userId) return
+
       // 1. Fetch user profile info
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('*')
-        .eq('user_id', id)
+        .eq('user_id', userId)
         .single()
 
       if (profileError || !profileData) {
@@ -32,7 +36,7 @@ export default function PublicProfilePage() {
       const { data: personalityData, error: personalityError } = await supabase
         .from('personality_profiles')
         .select('*')
-        .eq('user_id', id)
+        .eq('user_id', userId)
         .eq('is_current', true)
         .single()
 
@@ -42,7 +46,7 @@ export default function PublicProfilePage() {
     }
 
     if (id) fetchProfile()
-  }, [id])
+  }, [id, supabase])
 
   if (loading) {
     return (
