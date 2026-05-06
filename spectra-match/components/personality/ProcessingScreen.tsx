@@ -8,7 +8,7 @@ export default function ProcessingScreen() {
       <div className="spinner mb-8" />
       <h2 className="mb-2 gradient-text">Analyzing your results...</h2>
       <p className="text-text-secondary animate-pulse max-w-sm">
-        Our personality engine is processing your answers and generating your unique AI profile. This usually takes 5-10 seconds.
+        Our personality engine is processing your answers and generating your unique AI profile. this may take up to a minute hold tight!
       </p>
       
       <div className="mt-12 space-y-4 w-full max-w-xs text-xs text-text-muted">
